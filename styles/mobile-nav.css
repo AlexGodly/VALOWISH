@@ -1,0 +1,30 @@
+/* v2.2 mobile/tablet VALOWISH navigation */
+.nav-icon{display:none;font-size:20px;line-height:1}.mobile-hub .hub-mark{display:none}
+@media(max-width:900px){
+ .topbar{display:flex!important;height:58px!important;padding:0 14px!important;position:sticky;top:0;background:#050606;overflow:visible!important}
+ .brand{font-size:20px!important;width:auto!important;min-width:0!important}.heart{width:29px;height:29px}.heart:after{font-size:13px;inset:4px}
+ .account{position:static!important;margin-left:auto!important;height:38px!important;max-width:46vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+ .nav{position:fixed!important;left:10px!important;right:10px!important;bottom:10px!important;z-index:150!important;height:74px;width:auto!important;display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:0!important;padding:7px 5px!important;background:linear-gradient(180deg,rgba(17,18,19,.98),rgba(6,7,8,.99))!important;border:1px solid #292b2e!important;border-top:1px solid #4c2025!important;border-radius:12px!important;box-shadow:0 -8px 30px #000b,0 0 0 1px #000 inset!important;overflow:visible!important}
+ .nav button{position:relative!important;height:58px!important;min-width:0!important;padding:6px 3px!important;border:0!important;background:transparent!important;color:#8d9097!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:5px!important;font-size:10px!important;letter-spacing:.4px!important;text-transform:uppercase!important}
+ .nav button .nav-icon{display:block}.nav button.active{color:var(--red)!important;background:transparent!important}
+ .nav button.active:after{content:'';position:absolute;bottom:-7px;width:34px;height:3px;background:var(--red);border-radius:4px;box-shadow:0 0 10px rgba(255,70,85,.7)}
+ .nav .mobile-hub{transform:translateY(-20px)!important;gap:0!important;color:#d7d7d7!important;overflow:visible!important;justify-content:flex-start!important;padding-top:0!important}.nav .mobile-hub>span:last-child{position:absolute!important;top:61px!important;left:50%!important;transform:translateX(-50%)!important;white-space:nowrap!important;line-height:1!important;font-size:9px!important;letter-spacing:1px!important}
+ .nav .mobile-hub .hub-mark{display:grid!important;place-items:center;width:52px;height:52px;min-width:52px;min-height:52px;border:3px solid var(--red);transform:rotate(45deg);border-radius:5px 13px 5px 13px;background:#080909;color:var(--red);font-size:0;filter:drop-shadow(0 0 10px rgba(255,70,85,.28));margin:0 auto!important;flex:none!important}
+ .nav .mobile-hub .hub-mark:after{content:'V';transform:rotate(-45deg);font-size:23px;font-weight:800}
+ .nav .mobile-hub.active{color:var(--red)!important}.nav .mobile-hub.active:after{width:58px;bottom:-7px;height:4px}
+ .wrap{padding-bottom:110px!important}
+ .notice{bottom:98px!important}
+}
+@media(min-width:561px) and (max-width:900px){.nav{left:50%!important;right:auto!important;transform:translateX(-50%);width:min(720px,calc(100vw - 30px))!important;height:78px}.nav button{font-size:11px!important}.nav .mobile-hub .hub-mark{width:56px;height:56px}}
+@media(max-width:560px){.nav{left:7px!important;right:7px!important;bottom:7px!important;height:70px!important;border-radius:10px!important}.nav .mobile-hub .hub-mark{width:48px;height:48px}.nav button{height:54px!important;font-size:9px!important}.wrap{padding-bottom:100px!important}}
+
+/* v2.4 normal Priority mobile/tablet tab */
+@media(max-width:900px){
+ .nav .mobile-hub{transform:none!important;gap:5px!important;color:#8d9097!important;overflow:visible!important;justify-content:center!important;padding:6px 3px!important}
+ .nav .mobile-hub>span:last-child{position:static!important;transform:none!important;font-size:inherit!important;letter-spacing:.4px!important}
+ .nav .mobile-hub .hub-mark{display:none!important}
+}
+/* v2.3 priority ordering controls */
+.order-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.order-btn{min-width:38px;height:38px;padding:0 10px}.rank-jump{display:flex;align-items:center;gap:5px}.rank-jump input{width:64px!important;text-align:center}.priority-order-help{color:#888;font-size:12px;margin:8px 0 14px}.priority-item.flash{animation:rankFlash .65s ease}@keyframes rankFlash{0%,100%{border-color:#303131}50%{border-color:var(--red);box-shadow:0 0 18px rgba(255,70,85,.25)}}
+@media(max-width:700px){.order-controls{grid-column:3;width:100%}.rank-jump{flex:1}.rank-jump input{width:58px!important}.order-btn{min-width:40px}.priority-order-help{font-size:11px}}
+
