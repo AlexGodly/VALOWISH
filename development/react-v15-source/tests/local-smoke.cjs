@@ -1,0 +1,23 @@
+/* Offline smoke test for TypeScript data logic. Uses globally available TypeScript compiler. */
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const ts=require('/opt/nvm/versions/node/v22.16.0/lib/node_modules/typescript');
+require.extensions['.ts']=function(mod,filename){const s=fs.readFileSync(filename,'utf8');const result=ts.transpileModule(s,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}});mod._compile(result.outputText,filename)};
+const storage=require('../src/lib/storage.ts');
+const models=require('../src/lib/models.ts');
+const collection=require('../src/lib/collections.ts');
+const catalog=require('../src/lib/catalog.ts');
+const d=storage.normalizeData({wishlist:['skin1','skin1'],owned:['owned1'],priority:['skin1'],vp:1995,rarityPrices:{Premium:1775},name:'ALEXGODLY'});
+assert.deepEqual(d.wishlist,['skin1']);assert.equal(d.owned[0],'owned1');
+assert.equal(d.vp,1995);assert.equal(d.name,'ALEXGODLY');
+const wish=collection.toggleCollection(d,'wishlist','new');assert.equal(wish.wishlist.includes('new'),true);
+assert.equal(collection.undo(wish).wishlist.includes('new'),false);
+assert.equal(collection.redo(collection.undo(wish)).wishlist.includes('new'),true);
+const bought=collection.buyItem(models.blankData(),{id:'skin',uuid:'skin',kind:'skins',name:'Skin',icon:'',hero:'',subtitle:'',tierName:'Premium'});
+assert.equal(bought.vp,220);assert.deepEqual(bought.owned,['skin']);
+const guns=catalog.normalizeCatalog('skins',[{displayName:'Warden',skins:[{uuid:'warden-1',displayName:'Warden Wildfire',displayIcon:'x'}]},{displayName:'Bandit',skins:[{uuid:'bandit-1',displayName:'Bandit Rex',displayIcon:'x'}]}]);
+assert.deepEqual(guns.map(x=>x.id),['bandit-1','warden-1']);assert.equal(guns.find(x=>x.id==='warden-1').weapon,'Warden');
+const cards=catalog.normalizeCatalog('playercards',[{uuid:'same',displayName:'Card',displayIcon:'x'}]);assert.equal(cards[0].id,'playercards:same');
+assert.equal(collection.estimatedPrice(guns[0],d),1275);
+console.log('PASS: v14 data migration, collection toggle, undo/redo, purchase, new weapon normalization, category ID safety, VP estimates');

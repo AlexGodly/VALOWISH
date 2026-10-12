@@ -1,0 +1,1 @@
+The deployable website is in the ZIP root. development/react-v15-source holds the original React/TypeScript v15 Preview 1 for continued migration. It is not the runtime of the root site and should not be directly opened as a compiled webpage.

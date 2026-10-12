@@ -1,25 +1,39 @@
-# VALOWISH
+# VALOWISH v15 — REBORN / Ready-to-Open Recovery Build
 
-**VALOWISH by Alex Godly** is a mobile-friendly VALORANT skin Wishlist, Priority List and Locker manager with collection tracking, pricing, history and optional Supabase cloud sync.
+**This build fixes the white screen in Preview 1.** The first preview shipped Vite/React TypeScript source, but its `index.html` was not a compiled webpage. Opening it directly in a browser or deploying it without a working Vite build could show a blank screen.
 
-## Project structure
-
-The v14 codebase is split into `src/core/`, `src/ui/`, `src/pages/`, `src/features/`, `src/events/`, `src/services/`, `styles/`, and `assets/`. `index.html` assembles these files. See [ARCHITECTURE.md](ARCHITECTURE.md) for dependencies and development guidelines.
-
-## Features
-
-Browse skins from the Valorant API, search/filter by weapon/rarity/collection status, use paginated cards, organize a Wishlist, rank skins in a Priority List, track owned skins in Locker, manage VP/custom pricing, review history and use import/export backups. Optional Supabase authentication and cloud sync retain the existing single-account data format.
+## Run
+Open `index.html` from this directory, or publish `index.html` and `assets/` together on GitHub Pages. **No npm, Node.js, Vite installation, build command, or paid provider is required for this ready-to-open site.** Keep `assets/` next to `index.html`. The initial application shell displays even without a network connection. Online access is required to fetch current cosmetic data and use Supabase cloud services.
 
 ## GitHub Pages
+The ZIP contents are already in deployable root layout:
+```
+index.html
+assets/app.js
+assets/main.css
+assets/favicon.png
+assets/favicon-64.png
+.nojekyll
+```
+On `AlexGodly/VALOWISH`, GitHub Pages should publish from `main` / root, using the existing deployment configuration. Internal URLs are relative (`./assets/...`), compatible with `https://alexgodly.github.io/VALOWISH/`.
 
-There is **no npm installation or build step**. GitHub Pages can serve `index.html` directly from the repository root, with the files in their current folders. All internal URLs are relative to the site root. Retain the existing GitHub Pages publishing settings.
+The zip itself **has not been pushed** to GitHub and production deployment has **not** been completed. If the repository was switched to a custom Vite-only GitHub Actions workflow, that workflow must be replaced or Pages switched to branch/root before deploying this static build.
 
-## Development and checks
+## Implemented in the ready site
+- VALOWISH REBORN shell, responsive desktop sidebar, bottom mobile navigation and More sheet.
+- Home/Command Center, Discover, Wishlist, Locker, Priority, Loadouts, Planner, Insights, History, Settings.
+- Dynamic cosmetic categories via Valorant-API (skins, bundles, cards, titles, buddies, sprays, Flexes, agents, maps, game modes, seasons, events). Actual API coverage may vary.
+- Search, weapon/status/sort filters, bounded pagination, collection actions, item details, chromas/levels where the API supplies them, tracked VP, estimates, configurable prices and notes.
+- Favorites, ownership, Wishlist, priority ordering, saved loadouts, savings goals, local import/export, undo/redo for supported collection actions.
+- Auto local migration from v14 and supported older keys; Supabase client loaded optionally without blocking startup; uses existing Supabase project and `valowish_data` JSON column.
 
-Source files can be edited independently. Run `python tests/verify_project.py` and `node tests/smoke_runtime.cjs` to check syntax, assets, basic UI flows and pagination. Node.js and Python are needed only for tests, not for the deployed application.
+## Compatibility and limitations
+This is a **self-contained JavaScript production recovery build**, not a verified production bundle of the original React/TypeScript preview. The original React/Vite source has been preserved separately in the full source package for continued migration. This is intentionally a reliable static runtime while that migration is completed.
 
-Cloud authentication requires network access and the existing Supabase deployment. Live cloud functionality should be tested in the deployed site before treating it as fully verified.
+The available cosmetic API does not reliably expose actual individual-account shop prices, ownership, or VP balance. All such data is manually managed/estimated. Supabase auth and live cloud sync require internet access and valid existing backend configuration. **Live end-to-end cloud testing was not possible in this environment.** User records are stored locally; use Export Backup before replacing the running site.
 
-## Disclaimer
-
-VALOWISH is an independent fan-made project, not affiliated with Riot Games. VALORANT and related properties belong to their owners.
+## Validation
+- `node --check assets/app.js`
+- `node tests/verify_ready.cjs`
+- Headless browser tests: Command Center, Discover, paginated 45-item catalog, Wishlist/Locker persistence, Details, Purchase Planner, mobile More navigation, with mock catalog and no remote cloud library.
+- Browser tests do not constitute verified live Supabase, live API, or cross-browser production parity.
