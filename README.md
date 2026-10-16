@@ -49,3 +49,9 @@ Every new update should increment the version in `release.json`, choose an appro
 Open **Buying Simulator** in Operations (desktop sidebar) or the mobile More menu. Create one or more buying plans, add cosmetics from Wishlist/Priority or search the cosmetic catalog, then reorder purchases and see estimated total/remaining VP. Plans do not deduct your actual VP or change item ownership. Prices for non-weapon cosmetics must be entered manually when unknown.
 
 The Priority page now calculates estimated VP needed for each Global/Category/Weapon scope. v18 data is persisted in `valowish_v18`, with automatic local migration from earlier supported versions; Supabase JSON synchronization uses the existing table. Run `node tests/v18_smoke.cjs` for the offline data tests.
+
+## Cloud sync reliability (v19)
+
+After logging in, VALOWISH automatically reads the account's `valowish_data` record. Edits are stored locally immediately and then synchronized to Supabase. Multi-device writes use the existing `updated_at` timestamp as a concurrency check to avoid overwriting another device's changes. If incompatible data exists on the device and cloud, the app pauses synchronization and offers manual recovery options in Settings. Backups can be exported and previous-version local data can be restored when available.
+
+For cross-device access, use the **same VALOWISH account** on every device. A "Cloud Saved" status and timestamp means the latest successful database confirmation was received; "Offline", "Pending", and "Conflict" statuses mean data is not yet confirmed in cloud. No database migration is required for the existing `valowish_data` table.
