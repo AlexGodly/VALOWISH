@@ -38,8 +38,14 @@ The available cosmetic API does not reliably expose actual individual-account sh
 - Headless browser tests: Command Center, Discover, paginated 45-item catalog, Wishlist/Locker persistence, Details, Purchase Planner, mobile More navigation, with mock catalog and no remote cloud library.
 - Browser tests do not constitute verified live Supabase, live API, or cross-browser production parity.
 
-## Branding and automatic releases
+## Branding and automated releases
 
-The approved VALOWISH branding uses `assets/valowish-mark.svg`, `assets/valowish-wordmark.svg`, and `assets/favicon.svg`. The browser title is **VALOWISH by Alex Godly**.
+The brand assets are located under `assets/` (`valowish-mark.svg`, `valowish-wordmark.svg`, and `favicon.svg` plus PNG icons). The title shown in the browser is **VALOWISH by Alex Godly**.
 
-For each new release, update `release.json` with the incremented numeric `version`, the chosen `status` (Stable, Experimental, Unstable, etc.), and the `changelog` Markdown file. The included GitHub Actions workflow automatically creates the version tag (for example, `16`) and a GitHub release titled `v16 Stable`. Existing releases are left untouched.
+Every new update should increment the version in `release.json`, choose an appropriate status (`Stable`, `Experimental`, `Unstable`, etc.), and write a matching `CHANGELOG-vN.md`. On push to `main`, `.github/workflows/publish-release.yml` creates a GitHub Release tagged `N` titled `vN <status>` with the changelog as release notes. Existing tags/releases are not overwritten. GitHub Pages deployment is managed by the repository's existing Pages configuration.
+
+## v18 — Buying Simulator
+
+Open **Buying Simulator** in Operations (desktop sidebar) or the mobile More menu. Create one or more buying plans, add cosmetics from Wishlist/Priority or search the cosmetic catalog, then reorder purchases and see estimated total/remaining VP. Plans do not deduct your actual VP or change item ownership. Prices for non-weapon cosmetics must be entered manually when unknown.
+
+The Priority page now calculates estimated VP needed for each Global/Category/Weapon scope. v18 data is persisted in `valowish_v18`, with automatic local migration from earlier supported versions; Supabase JSON synchronization uses the existing table. Run `node tests/v18_smoke.cjs` for the offline data tests.
