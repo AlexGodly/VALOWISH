@@ -1,3 +1,11 @@
+# VALOWISH v21
+
+VALOWISH v21 introduces full-page bundle dossiers with per-bundle curated contents, Cosmetics/Game Intel Favorites, and advanced category tabs and filters for Wishlist, Locker and Priority. Existing local/cloud user data and v20 automatic sync are preserved.
+
+**Important:** Bundle catalog metadata from Valorant-API does not include a verified breakdown of bundle contents. v21 lets the user curate contents and labels name-matched suggestions as unverified.
+
+See [CHANGELOG-v21.md](CHANGELOG-v21.md) for features, limitations, and test results.
+
 # VALOWISH v15 — REBORN / Ready-to-Open Recovery Build
 
 **This build fixes the white screen in Preview 1.** The first preview shipped Vite/React TypeScript source, but its `index.html` was not a compiled webpage. Opening it directly in a browser or deploying it without a working Vite build could show a blank screen.
@@ -58,4 +66,4 @@ For cross-device access, use the **same VALOWISH account** on every device. A "C
 
 
 ### Automatic Cloud Sync (v20)
-When signed into the same VALOWISH account, edits are saved to the local device immediately and synchronized automatically with Supabase. Normal differences between devices are reconciled without the old Review Cloud prompt. Two recovery snapshots are created before an ambiguous merge, and offline changes retry later. The Sync Now button is optional; manual review is reserved for exceptional synchronization failures. No database migration is needed. See `CHANGELOG-v20.md`.
+When signed into the same VALOWISH account, edits are saved to the local device immediately and synchronized automatically with Supabase. Normal differences between devices are reconciled without the old Review Cloud prompt. Two recovery snapshots are created before an ambiguous merge, and offline changes retry later. The Sync Now button is optional. Recent automatic safety snapshots are available under Settings → Cloud Recovery & Local Backups, without interrupting normal saving. No database migration is needed. See `CHANGELOG-v20.md`.
