@@ -41,65 +41,62 @@ async def fresh(browser):
  code=(Path(__file__).resolve().parent.parent/'assets/app.js').read_text()
  marker="render();ensureKind('skins');initCloud().catch(console.error);"
  assert marker in code
- code=code.replace(marker,"window.__v19={get:()=>JSON.parse(JSON.stringify(db)),set:(x)=>{db=normalized({...db,...x});save();render()},status:()=>({status:cloudStatus,message:cloudMessage,conflict:!!cloudConflict,user:cloudUser?.id,last:cloudLastSync}),sync:()=>queueCloudSync(),resolve:(choice)=>resolveCloudConflict(choice),cloudPayload:()=>payloadOf(db)};\n"+marker)
+ code=code.replace(marker,"window.__v20={get:()=>JSON.parse(JSON.stringify(db)),set:(x)=>{db=normalized({...db,...x});save();render()},status:()=>({status:cloudStatus,message:cloudMessage,conflict:!!cloudConflict,user:cloudUser?.id,last:cloudLastSync}),sync:()=>queueCloudSync(),resolve:(choice)=>resolveCloudConflict(choice),cloudPayload:()=>payloadOf(db)};\n"+marker)
  await page.add_script_tag(content=code)
- await page.wait_for_function('window.__v19?.status()?.status=== "synced"',timeout=9000)
+ await page.wait_for_function('window.__v20?.status()?.status=== "synced"',timeout=9000)
  return ctx,page,errors
 
 async def main():
  async with async_playwright() as pw:
   browser=await pw.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
   ctx1,page1,e1=await fresh(browser)
-  data1=await page1.evaluate('window.__v19.get()')
+  data1=await page1.evaluate('window.__v20.get()')
   assert data1['name']=='CLOUD USER' and data1['vp']==4321 and 'skins:server-1' in data1['wishlist'],data1
   print('PASS: Auto-restores cloud on initial saved session')
-  await page1.evaluate("window.__v19.set({wishlist:['skins:server-1','skins:from-device-1']})")
-  await page1.wait_for_function('window.__v19?.status()?.status==="synced"',timeout=9000)
+  await page1.evaluate("window.__v20.set({wishlist:['skins:server-1','skins:from-device-1']})")
+  await page1.wait_for_function('window.__v20?.status()?.status==="synced"',timeout=9000)
   assert 'skins:from-device-1' in BACKEND['row']['data']['wishlist'],BACKEND['row']['data']
   print('PASS: Local changes auto-save to cloud')
   ctx2,page2,e2=await fresh(browser)
-  data2=await page2.evaluate('window.__v19.get()')
+  data2=await page2.evaluate('window.__v20.get()')
   assert 'skins:from-device-1' in data2['wishlist'],data2
   print('PASS: New device restores previous device changes')
-  await page2.evaluate("window.__v19.set({name:'UPDATED FROM DEVICE 2'})")
-  await page2.wait_for_function('window.__v19?.status()?.status==="synced"',timeout=9000)
-  await page1.evaluate("window.__v19.sync()")
-  await page1.wait_for_function("window.__v19.get().name==='UPDATED FROM DEVICE 2'",timeout=9000)
+  await page2.evaluate("window.__v20.set({name:'UPDATED FROM DEVICE 2'})")
+  await page2.wait_for_function('window.__v20?.status()?.status==="synced"',timeout=9000)
+  await page1.evaluate("window.__v20.sync()")
+  await page1.wait_for_function("window.__v20.get().name==='UPDATED FROM DEVICE 2'",timeout=9000)
   print('PASS: Existing device refresh-syncs updates from another device')
   # Simultaneous independent changes, auto-merge
-  await page1.evaluate("window.__v19.set({wishlist:['skins:server-1','skins:from-device-1','skins:from-device-1b']})")
-  await page2.evaluate("window.__v19.set({favorites:['skins:device-2-favorite']})")
-  await page1.evaluate('window.__v19.sync()')
-  await page2.evaluate('window.__v19.sync()')
-  await page1.wait_for_function('window.__v19?.status()?.status==="synced"',timeout=9000)
-  await page2.wait_for_function('window.__v19?.status()?.status==="synced"',timeout=9000)
+  await page1.evaluate("window.__v20.set({wishlist:['skins:server-1','skins:from-device-1','skins:from-device-1b']})")
+  await page2.evaluate("window.__v20.set({favorites:['skins:device-2-favorite']})")
+  await page1.evaluate('window.__v20.sync()')
+  await page2.evaluate('window.__v20.sync()')
+  await page1.wait_for_function('window.__v20?.status()?.status==="synced"',timeout=9000)
+  await page2.wait_for_function('window.__v20?.status()?.status==="synced"',timeout=9000)
   row=BACKEND['row']['data']
   assert 'skins:from-device-1b' in row['wishlist'] and 'skins:device-2-favorite' in row['favorites'],row
   print('PASS: Concurrent nonoverlapping updates auto-merge safely')
-  # Concurrent scalar change -> conflict, no silent overwrite
-  await page1.evaluate("window.__v19.set({name:'NAME FROM A'})")
-  await page2.evaluate("window.__v19.set({name:'NAME FROM B'})")
-  await page1.evaluate('window.__v19.sync()')
-  await page2.evaluate('window.__v19.sync()')
-  await page2.wait_for_function("window.__v19?.status()?.status==='conflict'",timeout=10000)
-  assert BACKEND['row']['data']['name'] in ['NAME FROM A','NAME FROM B']
-  print('PASS: Conflicting edits require explicit decision; remote not silently replaced')
-  # Ensure page can render settings and conflict actions
+  # Concurrent edits should converge without a manual cloud-review action.
+  await page1.evaluate("window.__v20.set({name:'NAME FROM A'})")
+  await page2.evaluate("window.__v20.set({name:'NAME FROM B'})")
+  await page1.evaluate('window.__v20.sync()')
+  await page2.evaluate('window.__v20.sync()')
+  await page2.wait_for_function("window.__v20?.status()?.status==='synced'",timeout=10000)
+  await page1.evaluate('window.__v20.sync()')
+  await page1.wait_for_function("window.__v20?.status()?.status==='synced'",timeout=10000)
+  assert not (await page2.evaluate('window.__v20.status().conflict'))
+  print('PASS: Conflicting edits resolve automatically')
   await page2.locator('[data-route="settings"]').first.click()
-  await page2.get_by_text('LOCAL AND CLOUD DATA DIFFER',exact=True).wait_for(timeout=5000)
-  print('PASS: Conflict-resolution controls rendered')
-  page2.on('dialog',lambda dialog:asyncio.create_task(dialog.accept()))
-  await page2.locator('[data-cloud-resolve="cloud"]').click()
-  await page2.wait_for_function("window.__v19?.status()?.status==='synced'",timeout=5000)
-  assert (await page2.evaluate('window.__v19.get().name'))==BACKEND['row']['data']['name']
-  print('PASS: Explicit restore from cloud is recoverable')
+  assert await page2.locator('[data-cloud-resolve="cloud"]').count()==0
+  assert 'Automatic cloud saving is on' in await page2.locator('#root').inner_text()
+  print('PASS: No routine Review Cloud prompt')
   # Local reset must not erase a stored cloud account
   before=copy.deepcopy(BACKEND['row']['data'])
   await page2.locator('[data-reset="1"]').click()
-  await page2.evaluate('window.__v19.sync()')
-  await page2.wait_for_function("window.__v19?.status()?.status==='synced'",timeout=7000)
+  await page2.evaluate('window.__v20.sync()')
+  await page2.wait_for_function("window.__v20?.status()?.status==='synced'",timeout=7000)
   assert BACKEND['row']['data']==before,'Local-only reset erased cloud'
-  assert (await page2.evaluate('window.__v19.get().name'))==before['name']
+  assert (await page2.evaluate('window.__v20.get().name'))==before['name']
   print('PASS: Local-only reset never erases cloud data')
   assert not e1 and not e2,{'device1':e1,'device2':e2}
   print('PASS: No browser page errors')

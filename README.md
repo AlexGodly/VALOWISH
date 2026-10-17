@@ -55,3 +55,7 @@ The Priority page now calculates estimated VP needed for each Global/Category/We
 After logging in, VALOWISH automatically reads the account's `valowish_data` record. Edits are stored locally immediately and then synchronized to Supabase. Multi-device writes use the existing `updated_at` timestamp as a concurrency check to avoid overwriting another device's changes. If incompatible data exists on the device and cloud, the app pauses synchronization and offers manual recovery options in Settings. Backups can be exported and previous-version local data can be restored when available.
 
 For cross-device access, use the **same VALOWISH account** on every device. A "Cloud Saved" status and timestamp means the latest successful database confirmation was received; "Offline", "Pending", and "Conflict" statuses mean data is not yet confirmed in cloud. No database migration is required for the existing `valowish_data` table.
+
+
+### Automatic Cloud Sync (v20)
+When signed into the same VALOWISH account, edits are saved to the local device immediately and synchronized automatically with Supabase. Normal differences between devices are reconciled without the old Review Cloud prompt. Two recovery snapshots are created before an ambiguous merge, and offline changes retry later. The Sync Now button is optional; manual review is reserved for exceptional synchronization failures. No database migration is needed. See `CHANGELOG-v20.md`.

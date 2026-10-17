@@ -220,3 +220,9 @@
 .cloud-conflict .ready-tools{flex-wrap:wrap}.cloud-conflict .ready-btn{white-space:normal}
 @media(max-width:760px){.cloud-top-status{font-size:9px;padding:6px 7px}.cloud-conflict .ready-tools{display:grid;grid-template-columns:1fr}.cloud-conflict .ready-btn{width:100%}}
 @media(max-width:365px){.cloud-top-status{max-width:95px;overflow:hidden;text-overflow:ellipsis}}
+/* v20: manual recovery access stays unobtrusive; routine cloud saves require no action. */
+.cloud-snapshot-options{margin:16px 0;padding:11px 13px;border:1px solid #364951;background:#101a22;max-width:100%}
+.cloud-snapshot-options summary{cursor:pointer;color:#afc9d4;font:700 11px 'Share Tech Mono',monospace;letter-spacing:.5px;list-style-position:inside}
+.cloud-snapshot-options[open]{border-color:#527782}
+.cloud-snapshot-options .ready-tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.cloud-snapshot-options .ready-btn{font-size:11px;white-space:normal;overflow-wrap:anywhere}
