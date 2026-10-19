@@ -1,3 +1,9 @@
+# VALOWISH v22
+
+v22 adds **live tracked-ownership progress** for every bundle (card and full dossier) and **weapon-skin edition filters** in Discover, Wishlist, Locker, Favorites and Priority. Counts use individual owned status for curated bundle contents and remain separate from marking a bundle as owned. Collection edition selections persist through the existing cloud-synced preferences; there are no database changes.
+
+Bundle membership must still be curated by the user because the public catalog does not guarantee a full official item breakdown. See [CHANGELOG-v22.md](CHANGELOG-v22.md) for features, tests, and limitations.
+
 # VALOWISH v21
 
 VALOWISH v21 introduces full-page bundle dossiers with per-bundle curated contents, Cosmetics/Game Intel Favorites, and advanced category tabs and filters for Wishlist, Locker and Priority. Existing local/cloud user data and v20 automatic sync are preserved.
