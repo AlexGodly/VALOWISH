@@ -125,7 +125,7 @@ def main():
                 page.locator('[data-sim-open]').first.click(); page.wait_for_selector('#sim-picker-list .sim-picker-item')
                 if not page.locator('.sim-picker-filters').count(): page.locator('[data-sim-filters-toggle]').click()
                 tap(page.locator('.chip[data-chip-scope="sim"][data-chip-value="Vandal"]')); page.wait_for_timeout(100)
-                if mobile: page.locator('[data-sim-filters-toggle]').click()  # phones: close the filter panel to browse
+                page.locator('[data-sim-filters-toggle]').first.click()  # close the filter panel to browse the list
                 lst = page.locator('#sim-picker-list')
                 lst.evaluate('e=>e.scrollTop=e.scrollHeight'); page.wait_for_timeout(80)
                 before = lst.evaluate('e=>e.scrollTop'); check('picker list scrollable', before > 100, str(before))
@@ -142,8 +142,10 @@ def main():
                 page.screenshot(path=str(shots / f'{label}-picker.png'))
                 page.locator('[data-sim-add-selected]').click(); page.wait_for_timeout(100)
                 check('bulk add updates plan count', page.locator('#sim-picker-plan-count').inner_text() == '3')
-                if mobile: page.locator('[data-sim-filters-toggle]').click()
+                page.locator('[data-sim-filters-toggle]').first.click()
                 tap(page.locator('.chip[data-chip-scope="sim"][data-chip-value="Ultra Edition"]'))
+                if mobile: page.locator('.sim-show-results').click()  # phones: back from the full-screen filters to the list
+                check('picker filter panel shows every chip', page.evaluate("()=>{const f=document.querySelector('.sim-picker-filters');return !f||f.scrollHeight-f.clientHeight<2||innerWidth<=760}"))
                 page.locator('[data-sim-select="all"]').click()
                 sel = page.locator('#sim-bulk-bar strong').inner_text()
                 page.locator('[data-sim-add-selected]').click(); page.wait_for_timeout(100)
