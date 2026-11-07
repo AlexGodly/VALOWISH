@@ -522,3 +522,31 @@ button.level-chip:hover{border-color:var(--red)}
 .priority-plan-bar span{display:block;font:12px var(--mono);color:#e6c599;margin-top:2px}
 .priority-plan-bar .ready-btn{margin:0;width:auto;flex:0 0 auto}
 @media (max-width:760px){.priority-plan-bar .ready-btn{width:100%}}
+/* v28 add-to-plan chooser */
+.chooser-backdrop{z-index:420}
+.plan-chooser{width:min(560px,100%);max-height:100%;display:flex;flex-direction:column;background:#0d141b;border:1px solid #82505b;box-shadow:0 24px 120px #000}
+.plan-chooser header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:14px 18px;border-bottom:1px solid #293744}
+.plan-chooser h2{margin:2px 0 0;font:900 26px var(--display);letter-spacing:.5px}
+.plan-chooser header p{margin:2px 0 0;color:#cdd3d8;font-size:14px}
+.chooser-body{padding:6px 18px 12px;overflow-y:auto;min-height:0}
+.chooser-body h3{margin:14px 0 8px;font:800 15px var(--display);letter-spacing:1px;color:var(--red)}
+.chooser-note{margin:-2px 0 8px;font:11px var(--mono);color:var(--muted)}
+.chooser-options{display:flex;flex-direction:column;gap:6px}
+.chooser-option{display:flex;align-items:center;gap:12px;padding:10px 12px;background:#141c25;border:1px solid #33404d;cursor:pointer;min-width:0}
+.chooser-option:hover{border-color:#6c7c8a}
+.chooser-option.on{border-color:var(--red);background:#ff46551a}
+.chooser-option input[type=radio]{width:18px;height:18px;flex-shrink:0;accent-color:var(--red)}
+.chooser-option>span{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.chooser-option b{font:800 16px var(--display);letter-spacing:.4px;overflow-wrap:anywhere}
+.chooser-option small{font:11px var(--mono);color:var(--muted)}
+.chooser-option input#chooser-new-name{margin-top:6px;width:100%;min-height:38px;padding:6px 9px;background:#0c1218;border:1px solid #4b5663;color:var(--ink)}
+.plan-chooser footer{display:flex;align-items:center;gap:8px;padding:12px 18px;border-top:1px solid #293744;flex-wrap:wrap}
+.chooser-summary{display:flex;flex-direction:column;margin-right:auto}
+.chooser-summary strong{font:800 17px var(--display)}
+.chooser-summary span{font:12px var(--mono);color:#e6c599}
+.plan-chooser footer .ready-btn{margin:0;width:auto;flex:0 0 auto}
+@media (max-width:760px){
+ .plan-chooser{height:100%;border:0}
+ .plan-chooser footer .ready-btn{flex:1}
+ .plan-chooser footer [data-chooser-confirm]{flex-basis:100%;order:3}
+}

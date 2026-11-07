@@ -161,6 +161,27 @@ def main():
                 page.locator('.sim-picker footer [data-sim-close]').click()
                 check('plan rendered with added items', page.locator('.sim-item').count() >= 4)
 
+                # Add-to-plan chooser: choose plan and scope
+                nav('wishlist'); tap(page.locator('.chip.chip-clear[data-chip-group="editions"]')) if page.locator('.chip.chip-clear[data-chip-group="editions"]').count() else None
+                page.locator('.ready-card', has_text='Skin01 Vandal').locator('[data-sim-add]').click(); page.wait_for_selector('.plan-chooser')
+                check('chooser preselects last used plan', page.locator('.chooser-option.on', has_text='LAST USED').count() == 1)
+                check('chooser offers all Vandal skins in the list', page.locator('[data-chooser-scope="weapon"]').count() == 1 and page.locator('[data-chooser-scope="all"]').count() == 1)
+                page.locator('[data-chooser-plan="new"]').check(); page.fill('#chooser-new-name', 'Vandal Run')
+                page.locator('[data-chooser-scope="weapon"]').check()
+                n_add = int(page.locator('.chooser-summary strong').inner_text().split()[0])
+                page.screenshot(path=str(shots / f'{label}-chooser.png'))
+                page.locator('[data-chooser-confirm]').click(); page.wait_for_timeout(150)
+                saved = json.loads(page.evaluate("localStorage.getItem('valowish_v22')"))
+                newp = [p for p in saved['buyingPlans'] if p['name'] == 'Vandal Run']
+                check('chooser creates new plan with all Vandal wishlist skins', len(newp) == 1 and len(newp[0]['items']) == n_add == 3 and all(i.startswith('vandal-') for i in newp[0]['items']), str(newp))
+                page.locator('.ready-card', has_text='Skin03 Sheriff').locator('[data-sim-add]').click(); page.wait_for_selector('.plan-chooser')
+                check('chooser now remembers new plan as last used', 'Vandal Run' in page.locator('.chooser-option.on').first.inner_text())
+                page.locator('[data-chooser-plan="' + [p for p in saved['buyingPlans'] if p['name'] == 'Test Plan'][0]['id'] + '"]').check()
+                page.locator('[data-chooser-confirm]').click(); page.wait_for_timeout(150)
+                saved = json.loads(page.evaluate("localStorage.getItem('valowish_v22')"))
+                check('chooser adds only the clicked skin to an older plan', 'sheriff-03' in [p for p in saved['buyingPlans'] if p['name'] == 'Test Plan'][0]['items'] and 'sheriff-03' not in newp[0]['items'])
+                no_overflow('chooser')
+
                 # Video player
                 nav('discover'); page.fill('#catalog-search', 'Skin00 Vandal'); page.wait_for_timeout(400)
                 page.locator('.ready-card .name-btn').first.click(); page.wait_for_selector('.ready-modal')
