@@ -44,7 +44,7 @@ function openTab(store,{server=null,user=null}={}){
  const win={scrollY:0,scrollTo(){},addEventListener(k,fn){(listeners['win:'+k]||(listeners['win:'+k]=[])).push(fn)},supabase:{createClient:()=>fakeClient(server||cloudServer(),user)}};
  const sandbox={console:{log(){},warn(){},error(){}},window:win,document:doc,localStorage:store,fetch:fakeFetch,AbortController,clearTimeout(){},setTimeout(fn){timers.push(fn);return timers.length},setInterval(){return 0},requestAnimationFrame(fn){fn()},confirm:()=>true,prompt:()=>null,Date,Math,Number,String,Array,Set,Map,JSON,Object,Promise,URL,crypto:{randomUUID:()=>'id-'+Math.random().toString(36).slice(2)},CSS:{escape:s=>s},FormData:function(f){return f.data},Blob:function(){},globalThis:null};
  sandbox.globalThis=sandbox;
- const hook=`globalThis.__t={get db(){return db},set db(v){db=v},get html(){return app.innerHTML},save,commit,toggle,render,itemById,fetchKind,priorityItems,priorityMove,priorityMatches,filteredCollection,viewPrefs,updateViewPrefs,toggleChip,skinCompletion,categoryCompletion,milestoneInfo,simPickerCandidates,addManyToPlan,activeBuyingPlan,videoLists,weaponType,weaponGroups,refreshFromOtherTabs,queueCloudSync,cloudLoss,cleanPriorityViews,getFilter,discover,setPage,
+ const hook=`globalThis.__t={get db(){return db},set db(v){db=v},get html(){return app.innerHTML},save,commit,toggle,render,itemById,fetchKind,priorityItems,priorityMove,priorityMatches,filteredCollection,viewPrefs,updateViewPrefs,toggleChip,skinCompletion,categoryCompletion,milestoneInfo,simPickerCandidates,addManyToPlan,activeBuyingPlan,videoLists,weaponType,weaponGroups,refreshFromOtherTabs,queueCloudSync,cloudLoss,cleanPriorityViews,priorityToPlan,priorityPlanItems,getFilter,discover,setPage,
  get catalog(){return catalog},get cloudStatus(){return cloudStatus},get cloudConflict(){return cloudConflict},get cloudReady(){return cloudReady},get storageFailed(){return storageFailed},
  set priorityScope(v){priorityScope=v},set priorityType(v){priorityType=v},set priorityWeapon(v){priorityWeapon=v},set simPicker(v){simPicker=v},get simPicker(){return simPicker},set kind(v){kind=v},get filter(){return filter}};`;
  const anchor="render();ensureKind('skins');initCloud().catch(console.error);";
@@ -191,6 +191,20 @@ await test('buying plan picker: filters, sort, multi-select bulk add without dup
 await test('old single weapon / weapon-type selections convert to weapon names',async()=>{
  T.db.preferences.collectionViews={...T.db.preferences.collectionViews,locker:{weapon:'Ghost',types:['rifles']}};
  assert.deepStrictEqual([...T.viewPrefs('locker').weapons].sort(),['Bulldog','Ghost','Guardian','Phantom','Vandal','Warden']);
+});
+
+await test('priority list → new buying plan keeps exact items and rank order',async()=>{
+ const before=T.db.buyingPlans.length;
+ T.setPage('priority');T.priorityScope='weapon';T.priorityWeapon='Vandal';
+ T.db.priorityViews={...T.db.priorityViews,'weapon:Vandal':['v-reaver','v-champ','v-prime']};
+ T.priorityToPlan();
+ let p=T.activeBuyingPlan();assert.strictEqual(T.db.buyingPlans.length,before+1);
+ assert.strictEqual(p.name,'Priority · Vandal');assert.deepStrictEqual([...p.items],['v-reaver','v-champ','v-prime']);
+ T.priorityScope='global';T.priorityToPlan();p=T.activeBuyingPlan();
+ assert.strictEqual(p.name,'Priority · Global');assert.deepStrictEqual([...p.items],['s-sov','v-prime','p-ion','v-champ','v-reaver'],'owned p-oni left out, order kept');
+ T.priorityScope='weapon';T.priorityWeapon='Vandal';T.priorityToPlan();assert.strictEqual(T.activeBuyingPlan().name,'Priority · Vandal (2)');
+ T.priorityScope='type';T.priorityType='rifles';T.priorityToPlan();assert.strictEqual(T.activeBuyingPlan().name,'Priority · Rifles');
+ T.priorityScope='global';
 });
 
 await test('videos: variant and level streams are kept and labelled',async()=>{

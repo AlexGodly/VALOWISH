@@ -117,6 +117,13 @@ def main():
                     page.locator('[data-priority-scope="global"]').click()
                     check('global order untouched', page.locator('.ready-card .name-btn').first.inner_text() == 'Skin03 Sheriff')
                 no_overflow('priority'); page.screenshot(path=str(shots / f'{label}-priority-type.png'))
+                page.locator('[data-priority-scope="weapon"]').click(); tap(page.locator('[data-priority-weapon="Vandal"]'))
+                order = page.locator('.ready-card .name-btn').all_inner_texts()
+                page.locator('[data-priority-to-plan]').click(); page.wait_for_selector('.sim-item')
+                plan_names = page.locator('.sim-item').all_inner_texts()
+                check('priority list becomes a buying plan in the same order', len(plan_names) == len(order) and all(o in pn for o, pn in zip(order, plan_names)), f'{order} vs {plan_names}')
+                check('new plan is named after the list', 'Priority · Vandal' in page.locator('#main-content').inner_text())
+                nav('priority')
 
                 # Buying plan picker
                 nav('simulator')

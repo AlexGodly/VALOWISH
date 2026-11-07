@@ -516,3 +516,9 @@ button.level-chip:hover{border-color:var(--red)}
  .sim-picker>header p{margin-top:2px}
  .sim-picker-tools{padding:10px 20px}
 }
+/* v27 priority → buying plan */
+.priority-plan-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;padding:12px 14px;border:1px solid #4a3439;background:linear-gradient(90deg,#2a1217,#10161d)}
+.priority-plan-bar strong{display:block;font:800 16px var(--display);letter-spacing:.6px}
+.priority-plan-bar span{display:block;font:12px var(--mono);color:#e6c599;margin-top:2px}
+.priority-plan-bar .ready-btn{margin:0;width:auto;flex:0 0 auto}
+@media (max-width:760px){.priority-plan-bar .ready-btn{width:100%}}
