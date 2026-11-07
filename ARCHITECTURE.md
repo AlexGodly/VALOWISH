@@ -31,3 +31,11 @@ New storage key `valowish_v14` migrates prior keys (v13 to v3). Account sync use
 ## Testing
 
 `python tests/verify_project.py` validates paths, bundled assets, script syntax via Node.js, core HTML structure, and CSS parse. The project has no npm dependencies. External live services still require network access and account credentials for end-to-end testing.
+
+## Current runtime (v24)
+
+The live site runs from `assets/app.js` and `assets/main.css` (loaded by `index.html`). The `src/` and `styles/` folders are the earlier v14 modular sources and are **not loaded** by the current site.
+
+- User data: localStorage key `valowish_v22` (+ per-account copies), merged across open tabs via `valowish_rev_v24`.
+- Game catalog cache: IndexedDB database `valowish_catalog_v24` (never localStorage, so it cannot crowd out user data).
+- Tests: `node tests/v24_logic.cjs` and `python3 tests/v24_browser.py`.

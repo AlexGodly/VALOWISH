@@ -39,15 +39,15 @@ Designed with a bold, VALORANT-inspired visual identity, it combines an extensiv
 
 | Experience | What you can do |
 |:--|:--|
-| **Discover** | Explore weapon skins, bundles, player cards, titles, gun buddies, sprays, Flexes, and game information. Search and filter by category, weapon, edition, and more. |
+| **Discover** | Explore weapon skins, bundles, player cards, titles, gun buddies, sprays, Flexes, and game information. Search and combine filters for weapon type, weapon and edition, and watch variant and upgrade-level videos without leaving the app. |
 | **Wishlist** | Save the cosmetics you want, browse them by category, and sort or filter your future collection. |
 | **Locker** | Keep track of what you own and view estimated collection value. |
 | **Favorites** | Highlight your favorites, with separate views for cosmetics and game intel. |
-| **Priority** | Rank purchases globally, by category, or by individual weapon, and calculate estimated VP requirements. |
+| **Priority** | Rank purchases globally, by category, by weapon type (Rifles, Sidearms…), or by individual weapon, and calculate estimated VP requirements. |
 | **Loadout Studio** | Build multiple personal loadouts and choose weapon skins, gun buddies, and other supported cosmetics through visual pickers. |
-| **Buying Simulator** | Create multiple purchase plans, arrange items in buying order, and see running VP totals and budget requirements. |
+| **Buying Simulator** | Create multiple purchase plans, add many items at once with full filters, arrange them in buying order, and see running VP totals and budget requirements. |
 | **Purchase Planner** | Organize VP goals and track the cosmetics you're working toward. |
-| **Insights & History** | Explore your collection statistics and review tracked collection activity. |
+| **Insights & History** | See collection completion by category, weapon type and weapon with milestones, explore your statistics, and review tracked activity. |
 
 ### Bundles, in detail
 
@@ -73,7 +73,7 @@ Prices and VP totals are planning tools based on available catalog information a
 
 **Designed for desktop and mobile.** A responsive interface keeps browsing, planning, and managing cosmetics practical across different screen sizes.
 
-**Automatic cloud saving.** VALOWISH saves data locally and, when you're signed into a VALOWISH account, synchronizes supported data through Supabase. Sign in with the **same account** on your devices to access your saved collection. Pending or offline changes can sync when connectivity returns; account and connection status still matter.
+**Automatic cloud saving.** VALOWISH saves data locally (open tabs stay in sync with each other, and large unexpected removals are never synced without asking) and, when you're signed into a VALOWISH account, synchronizes supported data through Supabase. Sign in with the **same account** on your devices to access your saved collection. Pending or offline changes can sync when connectivity returns; account and connection status still matter.
 
 **Data in your hands.** Use the available backup and recovery tools in Settings for additional protection. Exporting a backup is recommended before major changes or device migrations.
 
