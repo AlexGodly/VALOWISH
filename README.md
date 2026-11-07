@@ -39,12 +39,14 @@ Designed with a bold, VALORANT-inspired visual identity, it combines an extensiv
 
 | Experience | What you can do |
 |:--|:--|
-| **Discover** | Explore weapon skins, bundles, player cards, titles, gun buddies, sprays, Flexes, and game information. Search and combine filters for weapon type, weapon and edition, and watch variant and upgrade-level videos without leaving the app. |
+| **Discover** | See what's new since your last visit, and explore weapon skins, bundles, player cards, titles, gun buddies, sprays, Flexes, and game information. Search and combine filters for weapon type, weapon and edition, and watch variant and upgrade-level videos without leaving the app. |
 | **Wishlist** | Save the cosmetics you want, browse them by category, and sort or filter your future collection. |
 | **Locker** | Keep track of what you own and view estimated collection value. |
 | **Favorites** | Highlight your favorites, with separate views for cosmetics and game intel. |
 | **Priority** | Rank purchases globally, by category, by weapon type (Rifles, Sidearms…), or by individual weapon, and calculate estimated VP requirements. |
 | **Loadout Studio** | Build multiple personal loadouts and choose weapon skins, gun buddies, and other supported cosmetics through visual pickers. |
+| **Esports** | Browse Champions, VCT event and team capsule items in one place and track how many you own. |
+| **Daily Store Check** | Log the 4 skins in today's store and instantly see which are on your wishlist, priority lists or buying plans, with a history of past stores. |
 | **Buying Simulator** | Create multiple purchase plans, add many items at once with full filters, arrange them in buying order, and see running VP totals and budget requirements. |
 | **Purchase Planner** | Organize VP goals and track the cosmetics you're working toward. |
 | **Insights & History** | See collection completion by category, weapon type and weapon with milestones, explore your statistics, and review tracked activity. |
@@ -81,7 +83,7 @@ Prices and VP totals are planning tools based on available catalog information a
 
 <div align="center">
   <h3><a href="https://alexgodly.github.io/VALOWISH/">Open VALOWISH →</a></h3>
-  <p>No installation required. Open the website in a modern browser.</p>
+  <p>No installation required. Open the website in a modern browser, or install it from Settings to use it like an app (works offline).</p>
 </div>
 
 You can begin exploring the catalog immediately. Add items to your Wishlist, organize owned cosmetics in Locker, or create your first loadout and buying plan. For cross-device synchronization, sign in and allow your changes to finish saving before switching devices.

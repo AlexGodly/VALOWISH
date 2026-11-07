@@ -1,6 +1,6 @@
 // VALOWISH v24 logic tests: data-loss scenarios (stale tabs, full storage, mass removal),
 // weapon-type priority lists, multi-select filters, buying-plan bulk add and completion.
-// Run: node tests/v24_logic.cjs [path/to/app.js]
+// Run: node tests/logic.cjs [path/to/app.js]
 const fs=require('fs'),vm=require('vm'),assert=require('assert'),path=require('path');
 const APP=process.argv[2]||path.join(__dirname,'../assets/app.js');
 const js=fs.readFileSync(APP,'utf8');
@@ -17,7 +17,8 @@ const weapons=[
  {displayName:'Melee',skins:[{uuid:'melee-default',displayName:'Melee'},{uuid:'m-karambit',displayName:'Reaver Karambit',contentTierUuid:'t-excl'}]},
  {displayName:'Zapper',skins:[{uuid:'z-new',displayName:'Prototype Zapper',contentTierUuid:'t-select'}]}];
 const tiers=[{uuid:'t-prem',displayName:'Premium Edition'},{uuid:'t-excl',displayName:'Exclusive Edition'},{uuid:'t-ultra',displayName:'Ultra Edition'},{uuid:'t-select',displayName:'Select Edition'}];
-const cards=[{uuid:'card1',displayName:'Card One'},{uuid:'card2',displayName:'Card Two'},{uuid:'card3',displayName:'Card Three'},{uuid:'card4',displayName:'Card Four'}];
+const cards=[{uuid:'card1',displayName:'Card One'},{uuid:'card2',displayName:'Card Two'},{uuid:'card3',displayName:'Card Three'},{uuid:'card4',displayName:'Card Four'},
+ {uuid:'card-vct',displayName:'VCT x 100T Card'},{uuid:'card-vct26',displayName:'VCT26 x PRX Card'},{uuid:'card-ch24',displayName:'Champions 2024 Card'},{uuid:'card-sol',displayName:'Sentinels of Light Card'},{uuid:'card-sen',displayName:'Sentinels Card'},{uuid:'card-lock',displayName:'VCT LOCK//IN Card'}];
 const fakeFetch=async url=>({ok:true,async json(){return{data:url.includes('contenttiers')?tiers:url.includes('weapons')?weapons:url.includes('playercards')?cards:[]}}});
 
 // Shared "server" row for a fake Supabase account.
@@ -44,7 +45,7 @@ function openTab(store,{server=null,user=null}={}){
  const win={scrollY:0,scrollTo(){},addEventListener(k,fn){(listeners['win:'+k]||(listeners['win:'+k]=[])).push(fn)},supabase:{createClient:()=>fakeClient(server||cloudServer(),user)}};
  const sandbox={console:{log(){},warn(){},error(){}},window:win,document:doc,localStorage:store,fetch:fakeFetch,AbortController,clearTimeout(){},setTimeout(fn){timers.push(fn);return timers.length},setInterval(){return 0},requestAnimationFrame(fn){fn()},confirm:()=>true,prompt:()=>null,Date,Math,Number,String,Array,Set,Map,JSON,Object,Promise,URL,crypto:{randomUUID:()=>'id-'+Math.random().toString(36).slice(2)},CSS:{escape:s=>s},FormData:function(f){return f.data},Blob:function(){},globalThis:null};
  sandbox.globalThis=sandbox;
- const hook=`globalThis.__t={get db(){return db},set db(v){db=v},get html(){return app.innerHTML},save,commit,toggle,render,itemById,fetchKind,priorityItems,priorityMove,priorityMatches,filteredCollection,viewPrefs,updateViewPrefs,toggleChip,skinCompletion,categoryCompletion,milestoneInfo,simPickerCandidates,addManyToPlan,activeBuyingPlan,videoLists,weaponType,weaponGroups,refreshFromOtherTabs,queueCloudSync,cloudLoss,cleanPriorityViews,priorityToPlan,priorityPlanItems,getFilter,discover,setPage,
+ const hook=`globalThis.__t={get db(){return db},set db(v){db=v},get html(){return app.innerHTML},save,commit,toggle,render,itemById,fetchKind,priorityItems,priorityMove,priorityMatches,filteredCollection,viewPrefs,updateViewPrefs,toggleChip,skinCompletion,categoryCompletion,milestoneInfo,simPickerCandidates,addManyToPlan,activeBuyingPlan,videoLists,weaponType,weaponGroups,refreshFromOtherTabs,queueCloudSync,cloudLoss,resetSeen:()=>{seenState={}},cleanPriorityViews,esportsGroup,esportsGroups,noteCatalog,isNew,markSeen,storeDay,setTodayItems,todayCheck,storeMatters,storeSeenCount,storePage,priorityToPlan,priorityPlanItems,getFilter,discover,setPage,
  get catalog(){return catalog},get cloudStatus(){return cloudStatus},get cloudConflict(){return cloudConflict},get cloudReady(){return cloudReady},get storageFailed(){return storageFailed},
  set priorityScope(v){priorityScope=v},set priorityType(v){priorityType=v},set priorityWeapon(v){priorityWeapon=v},set simPicker(v){simPicker=v},get simPicker(){return simPicker},set kind(v){kind=v},get filter(){return filter}};`;
  const anchor="render();ensureKind('skins');initCloud().catch(console.error);";
@@ -221,10 +222,37 @@ await test('completion: per category, type and weapon; defaults toggle; mileston
  const withDefaults=T.skinCompletion({editions:[],types:[],includeDefaults:true});
  const v2=withDefaults.types.find(t=>t.key==='rifles').weapons.find(w=>w.weapon==='Vandal');assert.deepStrictEqual([v2.owned,v2.total],[1,4]);
  const excl=T.skinCompletion({editions:['Exclusive Edition'],types:[],includeDefaults:true});assert.deepStrictEqual([excl.owned,excl.total],[1,3]);
- assert.deepStrictEqual(Object.assign({},T.categoryCompletion('playercards')),{owned:1,total:4,loaded:true});
+ assert.deepStrictEqual(Object.assign({},T.categoryCompletion('playercards')),{owned:1,total:10,loaded:true});
  const m=T.milestoneInfo(7,41);assert.strictEqual(m.reached,10);assert.strictEqual(m.next,25);assert.strictEqual(m.need,4);
  assert.strictEqual(T.milestoneInfo(41,41).reached,100);
  T.setPage('insights');assert(T.html.includes('COMPLETION BY WEAPON TYPE')&&T.html.includes('HOW MUCH OF VALORANT YOU OWN'));
+});
+
+await test('esports items are grouped by event/team and lookalikes are ignored',async()=>{
+ const g=id=>T.esportsGroup(T.itemById(id));
+ assert.strictEqual(g('playercards:card-vct'),'100 Thieves');assert.strictEqual(g('playercards:card-vct26'),'Paper Rex');assert.strictEqual(g('playercards:card-ch24'),'Champions 2024');
+ assert.strictEqual(g('v-champ'),'Champions 2021');assert.strictEqual(g('playercards:card-lock'),'VCT LOCK//IN');assert.strictEqual(g('playercards:card-sen'),'Sentinels');
+ assert.strictEqual(g('playercards:card-sol'),'','Sentinels of Light is not esports');assert.strictEqual(g('v-prime'),'');
+ const names=T.esportsGroups().map(x=>x.name);assert.strictEqual(names[0],'Champions 2024','newest Champions first');
+ T.setPage('esports');assert(T.html.includes('ALL ESPORTS ITEMS'));
+});
+
+await test('new cosmetics: first load is the baseline, later additions are flagged until marked seen',async()=>{
+ T.catalog.playercards=T.catalog.playercards.filter(x=>x.id!=='playercards:card4');
+ T.resetSeen();
+ T.noteCatalog('playercards');assert(!T.isNew('playercards:card1'));
+ await T.fetchKind('playercards',true);assert(T.isNew('playercards:card4'),'card4 added later is new');assert(!T.isNew('playercards:card1'));
+ T.markSeen(null);assert(!T.isNew('playercards:card4'));
+});
+
+await test('daily store check: today\'s 4 skins, wanted matches and history',async()=>{
+ assert.strictEqual(T.storeDay(Date.UTC(2026,10,7,23,59)),'2026-11-07');assert.strictEqual(T.storeDay(Date.UTC(2026,10,8,0,1)),'2026-11-08');
+ T.setTodayItems(['v-prime','p-oni','v-rand-none','s-ion']);
+ assert.deepStrictEqual([...T.todayCheck().items],['v-prime','p-oni','v-rand-none','s-ion']);
+ assert(T.storeMatters('v-prime'),'wishlisted+priority');assert(!T.storeMatters('p-oni'),'owned does not matter');assert(!T.storeMatters('s-ion'));
+ T.setPage('store');assert(T.html.includes('YOU WANT'),'summary shows wanted');
+ T.db.preferences.storeChecks.push({date:'2026-11-01',items:['v-prime','','','']});assert.strictEqual(T.storeSeenCount('v-prime'),2);
+ T.setTodayItems(['','','','']);assert.strictEqual(T.todayCheck(),null);
 });
 
 console.log(`\n${passed} passed`);

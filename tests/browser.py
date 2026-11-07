@@ -3,7 +3,7 @@
 Covers: chip filters, Priority BY WEAPON TYPE, buying-plan picker (filters, multi-select,
 list keeps its scroll position after add/select), the in-app video player (play, next,
 error fallback, close), completion page, two-tab data safety, and no horizontal overflow.
-Run: python3 tests/v24_browser.py   (needs Playwright + Chrome; serves the repo locally)
+Run: python3 tests/browser.py   (needs Playwright + Chrome; serves the repo locally)
 """
 import json, subprocess, sys, time, socket, os, tempfile
 from pathlib import Path
@@ -35,7 +35,9 @@ for w in ['Vandal', 'Phantom', 'Sheriff', 'Ghost', 'Operator', 'Spectre', 'Judge
     skins = [{'uuid': f'std-{w}', 'displayName': f'Standard {w}' if w != 'Melee' else 'Melee'}]
     skins += [skin(f'{w.lower()}-{i:02d}', f'Skin{i:02d} {w}', tier_ids[i % 4], videos=(w == 'Vandal' and i == 0)) for i in range(40 if w == 'Vandal' else 6)]
     weapons.append({'uuid': 'w-' + w, 'displayName': w, 'displayIcon': img, 'skins': skins})
-cards = [{'uuid': f'card{i}', 'displayName': f'Card {i:02d}', 'largeArt': img} for i in range(20)]
+cards = [{'uuid': f'card{i}', 'displayName': f'Card {i:02d}', 'largeArt': img} for i in range(20)] + [
+    {'uuid': 'card-vct', 'displayName': 'VCT x 100T Card', 'largeArt': img}, {'uuid': 'card-ch', 'displayName': 'Champions 2024 Card', 'largeArt': img},
+    {'uuid': 'card-sol', 'displayName': 'Sentinels of Light Card', 'largeArt': img}]
 fixture = {'weapons': weapons, 'contenttiers': tiers, 'playercards': cards, 'buddies': [], 'sprays': [], 'playertitles': [], 'flex': [], 'bundles': []}
 
 SUPABASE_STUB = "window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null},error:null}),onAuthStateChange:()=>({})}})};"
@@ -182,6 +184,24 @@ def main():
                 check('chooser adds only the clicked skin to an older plan', 'sheriff-03' in [p for p in saved['buyingPlans'] if p['name'] == 'Test Plan'][0]['items'] and 'sheriff-03' not in newp[0]['items'])
                 no_overflow('chooser')
 
+                # Daily store check
+                nav('store'); page.locator('[data-store-slot="0"]').click(); page.fill('#store-search', 'Skin01 Vandal'); page.wait_for_timeout(350)
+                page.locator('[data-store-pick="vandal-01"]').click()
+                page.locator('[data-store-slot="1"]').click(); page.fill('#store-search', 'Skin04 Judge'); page.wait_for_timeout(350); page.locator('[data-store-pick="judge-04"]').click()
+                check('store check flags wanted skin', page.locator('.store-slot.hot').count() == 1 and 'YOU WANT' in page.locator('.store-summary').inner_text())
+                check('store check shows priority rank', 'PRIORITY #' in page.locator('.store-slot.hot').inner_text())
+                saved = json.loads(page.evaluate("localStorage.getItem('valowish_v22')"))
+                check('store check saved for today', saved['preferences']['storeChecks'][0]['items'][:2] == ['vandal-01', 'judge-04'])
+                no_overflow('store'); page.screenshot(path=str(shots / f'{label}-store.png'), full_page=True)
+                nav('home'); check('home shows store card', 'WANTED SKIN' in page.locator('.store-home').inner_text())
+
+                # Esports
+                nav('esports'); page.wait_for_selector('.esports-group')
+                heads = page.locator('.esports-head strong').all_inner_texts()
+                check('esports groups', heads[:2] == ['CHAMPIONS 2024', '100 THIEVES'] and not any('LIGHT' in h for h in heads), str(heads))
+                page.locator('.esports-head').first.click(); check('esports group expands to cards', page.locator('.esports-cards .ready-card').count() == 1)
+                no_overflow('esports'); page.screenshot(path=str(shots / f'{label}-esports.png'), full_page=True)
+
                 # Video player
                 nav('discover'); page.fill('#catalog-search', 'Skin00 Vandal'); page.wait_for_timeout(400)
                 page.locator('.ready-card .name-btn').first.click(); page.wait_for_selector('.ready-modal')
@@ -233,6 +253,24 @@ def main():
                 other.close()
                 check(f'no JavaScript errors', not errors, str(errors))
                 ctx.close()
+            # Installable app: manifest + service worker, and the app opens offline.
+            ctx = browser.new_context(viewport={'width': 1200, 'height': 800}, service_workers='allow')
+            def route2(r):
+                u = r.request.url
+                if 'valorant-api.com/v1/' in u:
+                    return r.fulfill(status=200, content_type='application/json', body=json.dumps({'data': fixture.get(u.split('/v1/')[1].split('?')[0], [])}))
+                if 'supabase-js' in u: return r.fulfill(status=200, content_type='application/javascript', body=SUPABASE_STUB)
+                if 'media.test' in u or 'fonts.g' in u: return r.fulfill(status=404, body='')
+                return r.continue_()
+            ctx.route('**/*', route2)
+            page = ctx.new_page(); page.goto(base); page.wait_for_selector('.app-shell')
+            manifest = page.evaluate("fetch(document.querySelector('link[rel=manifest]').href).then(r=>r.json())")
+            assert manifest['display'] == 'standalone' and any(i['sizes'] == '512x512' for i in manifest['icons']); results.append('pwa: manifest valid')
+            page.evaluate("navigator.serviceWorker.ready.then(()=>true)"); page.reload(); page.wait_for_selector('.app-shell'); page.wait_for_timeout(500)
+            server.terminate(); server.wait()  # site goes away: only the service worker cache can serve it now
+            ctx.set_offline(True); page.reload(); page.wait_for_selector('.app-shell', timeout=8000)
+            assert page.locator('.side-nav [data-route="settings"]').count() == 1; results.append('pwa: app opens offline')
+            ctx.close()
             browser.close()
     finally:
         server.terminate()
