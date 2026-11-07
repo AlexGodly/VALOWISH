@@ -459,3 +459,23 @@ button.level-chip:hover{border-color:var(--red)}
  .data-banner-actions .ready-btn{flex:1}
 }
 .ready-modal .modalclose{z-index:6}
+/* v24.1 weapon-name chips grouped by class */
+.weapon-chip-groups{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
+.weapon-chip-row{align-items:center}
+.chip-group{background:#0b1015;border-color:#53606b;color:#9fb0bd;font-size:12px;letter-spacing:1px;border-radius:4px;min-width:96px}
+.chip-group.on{background:#ff465540;border-color:var(--red);color:#fff}
+.chip-group-label{display:inline-flex;align-items:center;min-width:96px;font:11px var(--mono);letter-spacing:1px;color:var(--muted)}
+.priority-weapon-chips{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.chip.empty{opacity:.55}
+.chip-filter.weapon-chip-filter{align-items:flex-start}
+.chip-filter.weapon-chip-filter .chip-filter-label{padding-top:9px}
+@media (max-width:760px){
+ .chip-group,.chip-group-label{min-width:0}
+ .chip-filter.weapon-chip-filter .chip-filter-label{padding-top:0}
+ .priority-weapon-chips .chip-row{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+ .chip-group-label{flex:0 0 auto;padding-right:4px}
+}
+@media (max-width:760px){
+ .chip-filter{align-items:stretch;max-width:100%}
+ .chip-filter>*,.weapon-chip-groups,.weapon-chip-groups>.chip-row,.chip-filters,.priority-weapon-chips{min-width:0;max-width:100%;width:100%}
+}

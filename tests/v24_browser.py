@@ -79,15 +79,18 @@ def main():
                     page.wait_for_timeout(150)
                 def no_overflow(where):
                     w = page.evaluate('document.documentElement.scrollWidth'); assert w <= vw + 1, f'{label} horizontal overflow on {where}: {w}'
+                def tap(loc):
+                    loc.evaluate("e=>e.scrollIntoView({block:'center',inline:'center',behavior:'instant'})"); loc.click()
                 def check(name, cond, msg=''):
                     assert cond, f'{label}: {name} {msg}'; results.append(f'{label}: {name}')
 
                 # Discover chips
                 nav('discover'); page.wait_for_selector('.chip-filter')
                 total = page.locator('.ready-catalog-header h3').inner_text()
-                page.locator('.chip[data-chip-group="types"][data-chip-value="sidearms"]').click()
-                page.locator('.chip[data-chip-group="editions"][data-chip-value="Ultra Edition"]').click()
-                page.locator('.chip[data-chip-group="editions"][data-chip-value="Exclusive Edition"]').click()
+                tap(page.locator('.chip[data-chip-group="weapons"][data-chip-value="Sheriff"]'))
+                tap(page.locator('.chip[data-chip-group="weapons"][data-chip-value="Ghost"]'))
+                tap(page.locator('.chip[data-chip-group="editions"][data-chip-value="Ultra Edition"]'))
+                tap(page.locator('.chip[data-chip-group="editions"][data-chip-value="Exclusive Edition"]'))
                 names = page.locator('.ready-card .name-btn').all_inner_texts()
                 check('discover multi-chip filter', len(names) == 4 and all(('Sheriff' in n or 'Ghost' in n) for n in names), str(names))
                 no_overflow('discover'); page.screenshot(path=str(shots / f'{label}-discover.png'))
@@ -104,6 +107,9 @@ def main():
                 page.locator('[data-priority-type="rifles"]').click()
                 ranks = page.locator('.ready-card .name-btn').all_inner_texts()
                 check('rifles priority list in global order', ranks == ['Skin01 Vandal', 'Skin02 Phantom', 'Skin02 Vandal'], str(ranks))
+                page.locator('[data-priority-scope="weapon"]').click(); tap(page.locator('[data-priority-weapon="Vandal"]'))
+                check('priority BY WEAPON uses weapon-name chips', [n for n in page.locator('.ready-card .name-btn').all_inner_texts()] == ['Skin01 Vandal', 'Skin02 Vandal'] and page.locator('[data-priority-weapon="Classic"]').count() == 1)
+                page.locator('[data-priority-scope="type"]').click()
                 if not mobile:
                     page.locator('.ready-card').nth(2).locator('[data-move][data-offset="-1"]').click()
                     ranks = page.locator('.ready-card .name-btn').all_inner_texts()
@@ -118,7 +124,7 @@ def main():
                     page.locator('#new-buying-plan input').first.fill('Test Plan'); page.locator('#new-buying-plan button').first.click()
                 page.locator('[data-sim-open]').first.click(); page.wait_for_selector('#sim-picker-list .sim-picker-item')
                 if not page.locator('.sim-picker-filters').count(): page.locator('[data-sim-filters-toggle]').click()
-                page.select_option('#sim-weapon', 'Vandal'); page.wait_for_timeout(100)
+                tap(page.locator('.chip[data-chip-scope="sim"][data-chip-value="Vandal"]')); page.wait_for_timeout(100)
                 if mobile: page.locator('[data-sim-filters-toggle]').click()  # phones: close the filter panel to browse
                 lst = page.locator('#sim-picker-list')
                 lst.evaluate('e=>e.scrollTop=e.scrollHeight'); page.wait_for_timeout(80)
@@ -137,7 +143,7 @@ def main():
                 page.locator('[data-sim-add-selected]').click(); page.wait_for_timeout(100)
                 check('bulk add updates plan count', page.locator('#sim-picker-plan-count').inner_text() == '3')
                 if mobile: page.locator('[data-sim-filters-toggle]').click()
-                page.locator('.chip[data-chip-scope="sim"][data-chip-value="Ultra Edition"]').click()
+                tap(page.locator('.chip[data-chip-scope="sim"][data-chip-value="Ultra Edition"]'))
                 page.locator('[data-sim-select="all"]').click()
                 sel = page.locator('#sim-bulk-bar strong').inner_text()
                 page.locator('[data-sim-add-selected]').click(); page.wait_for_timeout(100)
@@ -174,11 +180,11 @@ def main():
                 check('rifles completion counts', '2 / 46' in txt and 'VANDAL' in txt, txt[:120])
                 page.locator('#main-content [data-completion-defaults]').check(); page.wait_for_timeout(100)
                 check('defaults toggle adds standard skins', '4 / 48' in page.locator('.completion-type.open').inner_text())
-                page.locator('.chip[data-chip-scope="completion"][data-chip-value="Exclusive Edition"]').click()
+                tap(page.locator('.chip[data-chip-scope="completion"][data-chip-value="Exclusive Edition"]'))
                 check('edition filter on completion', '0 / 11' in page.locator('.completion-type.open').inner_text())
                 no_overflow('insights'); page.screenshot(path=str(shots / f'{label}-completion.png'), full_page=True)
                 page.locator('[data-completion-weapon="Vandal"]').click(); page.wait_for_selector('.ready-card')
-                check('weapon row opens missing skins in Discover', page.locator('.chip.on[data-chip-value="Exclusive Edition"]').count() == 1 and page.locator('#main-content select[data-filter="weapon"]').input_value() == 'Vandal')
+                check('weapon row opens missing skins in Discover', page.locator('.chip.on[data-chip-value="Exclusive Edition"]').count() == 1 and page.locator('.chip.on[data-chip-scope="discover"][data-chip-value="Vandal"]').count() == 1)
                 nav('home'); check('home completion card', page.locator('.home-completion').count() == 1)
                 check('sign-in nudge on home', page.locator('.data-banner').count() == 1)
 

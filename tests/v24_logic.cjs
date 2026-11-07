@@ -164,13 +164,15 @@ await test('multi-select filters: old single edition migrates; editions and type
  assert.deepStrictEqual([...T.filteredCollection('wishlist')].sort(),['m-karambit','p-oni','v-champ']);
  T.setPage('wishlist');T.toggleChip('collection','editions','Ultra Edition');
  assert.deepStrictEqual([...T.filteredCollection('wishlist')].sort(),['m-karambit','p-oni','s-sov','v-champ']);
- T.toggleChip('collection','types','rifles');assert.deepStrictEqual([...T.filteredCollection('wishlist')].sort(),['p-oni','v-champ']);
- T.toggleChip('collection','types','sidearms');assert.deepStrictEqual([...T.filteredCollection('wishlist')].sort(),['p-oni','s-sov','v-champ']);
- T.toggleChip('collection','editions','');T.toggleChip('collection','types','');assert.strictEqual(T.filteredCollection('wishlist').length,9);
+ T.toggleChip('collection','weapons','Vandal');assert.deepStrictEqual([...T.filteredCollection('wishlist')],['v-champ']);
+ T.toggleChip('collection','weapons','Sheriff');assert.deepStrictEqual([...T.filteredCollection('wishlist')].sort(),['s-sov','v-champ']);
+ T.toggleChip('collection','weapons','',['Vandal','Phantom']);assert.deepStrictEqual([...T.viewPrefs('wishlist').weapons].sort(),['Phantom','Sheriff','Vandal'],'group chip selects whole class');
+ T.toggleChip('collection','weapons','',['Vandal','Phantom']);assert.deepStrictEqual([...T.viewPrefs('wishlist').weapons],['Sheriff'],'group chip again clears class');
+ T.toggleChip('collection','editions','');T.toggleChip('collection','weapons','');assert.strictEqual(T.filteredCollection('wishlist').length,9);
 });
 
 await test('discover chips filter the catalog',async()=>{
- T.kind='skins';T.setPage('discover');T.toggleChip('discover','types','sidearms');T.toggleChip('discover','editions','Ultra Edition');
+ T.kind='skins';T.setPage('discover');T.toggleChip('discover','weapons','Sheriff');T.toggleChip('discover','editions','Ultra Edition');
  assert(T.html.includes('Sovereign Sheriff')&&!T.html.includes('Ion Sheriff')&&!T.html.includes('Prime Vandal'),'discover filtered');
  T.toggleChip('discover','editions','Ultra Edition');assert(T.html.includes('Ion Sheriff'));
 });
@@ -184,6 +186,11 @@ await test('buying plan picker: filters, sort, multi-select bulk add without dup
  assert.deepStrictEqual([...T.activeBuyingPlan().items],['v-prime','v-reaver','s-sov','p-ion']);
  T.simPicker.status='not-planned';assert(!T.simPickerCandidates().some(x=>x.id==='v-prime'));
  T.simPicker=null;
+});
+
+await test('old single weapon / weapon-type selections convert to weapon names',async()=>{
+ T.db.preferences.collectionViews={...T.db.preferences.collectionViews,locker:{weapon:'Ghost',types:['rifles']}};
+ assert.deepStrictEqual([...T.viewPrefs('locker').weapons].sort(),['Bulldog','Ghost','Guardian','Phantom','Vandal','Warden']);
 });
 
 await test('videos: variant and level streams are kept and labelled',async()=>{
